@@ -4,9 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <title>POS POSADA</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' };
+    tailwind.config = { 
+        darkMode: 'class',
+        theme: {
+            extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] } }
+        }
+    };
     function toggleTheme() {
         document.documentElement.classList.toggle('dark');
         const icon = document.getElementById('themeIcon');
@@ -15,6 +25,7 @@
   </script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <style>
+    body { font-family: 'Poppins', sans-serif; }
     .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
     @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
     .btn-pop:active { animation: pop 0.1s ease-in-out; }
@@ -24,7 +35,7 @@
 </head>
 <body class="bg-orange-50 dark:bg-zinc-950 text-amber-950 dark:text-zinc-50 font-sans overflow-hidden transition-colors duration-300">
 
-  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-[70] bg-white dark:bg-zinc-800 text-amber-600 dark:text-zinc-400 p-2 rounded-full shadow-lg border border-amber-200 dark:border-zinc-700">
+  <button onclick="toggleTheme()" class="fixed top-3 right-3 z-[100] bg-white dark:bg-zinc-800 text-amber-600 dark:text-zinc-400 p-2 rounded-full shadow-lg border border-amber-200 dark:border-zinc-700 active:scale-90 transition-transform">
     <span class="material-icons-round" id="themeIcon">light_mode</span>
   </button>
 
@@ -37,48 +48,63 @@
   </div>
 
   <div id="app" class="w-full h-dvh flex flex-col md:flex-row hidden relative">
+    
     <main id="tabMenu" class="w-full md:flex-1 flex flex-col h-full relative md:border-r border-amber-200 dark:border-zinc-800 bg-orange-50 dark:bg-zinc-950 transition-colors">
-      <header class="p-3 bg-teal-600 dark:bg-zinc-900 border-b border-teal-700 dark:border-zinc-800 flex flex-col gap-3 shrink-0 shadow-md">
-        <div class="flex justify-between items-center w-full">
+      
+      <header class="bg-teal-600 dark:bg-zinc-900 border-b border-teal-700 dark:border-zinc-800 shadow-md flex flex-col gap-3 p-4 shrink-0">
+        
+        <div class="flex justify-between items-start pr-12">
             <div>
-                <h1 class="text-lg font-bold text-white leading-none flex items-center gap-2">
+                <h1 class="text-xl font-black text-white leading-none flex items-center gap-2">
                     El Sembrador 
-                    <span id="regBadge" class="text-[10px] bg-teal-800/30 dark:bg-zinc-800 border border-white/30 px-1.5 rounded uppercase font-normal"></span>
-                    <button onclick="resetRegisterId()" class="text-teal-200 hover:text-white" title="Cambiar Caja">
-                        <span class="material-icons-round text-sm">logout</span>
+                    <button onclick="resetRegisterId()" class="text-teal-200 hover:text-white active:scale-90 transition-transform" title="Cambiar Caja">
+                        <span class="material-icons-round text-lg">logout</span>
                     </button>
                 </h1>
-                <div id="shiftInfo" class="text-[10px] text-teal-100 dark:text-emerald-400 uppercase tracking-wider font-bold mt-0.5">Cargando...</div>
+                <div class="flex items-center gap-2 mt-1">
+                    <span id="regBadge" class="text-[10px] bg-black/20 text-white border border-white/20 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">CAJA ?</span>
+                    <span id="shiftInfo" class="text-[10px] text-teal-100 dark:text-emerald-400 uppercase tracking-wider font-bold">Cargando...</span>
+                </div>
             </div>
-            <div class="flex gap-2 mr-10">
-               <a href="/admin.html" class="bg-white/10 text-white w-10 h-10 rounded-xl flex items-center justify-center border border-white/20"><span class="material-icons-round text-sm">dashboard</span></a>
-               <button onclick="addPaseRapido()" class="bg-white dark:bg-emerald-500 text-teal-700 dark:text-zinc-950 px-3 py-2 rounded-xl font-bold text-xs shadow-lg btn-pop flex items-center gap-1"><span class="material-icons-round text-sm">confirmation_number</span> PASE</button>
-               <button id="closeShiftBtn" class="bg-rose-500 text-white px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1 btn-pop shadow-md border-b-4 border-rose-700"><span class="material-icons-round text-sm">inventory</span> CORTE</button>
-            </div>
+        </div>
+
+        <div class="flex gap-2 w-full">
+            <a href="/admin.html" class="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center border border-white/20 hover:bg-white/20 active:scale-95 transition-all shrink-0">
+                <span class="material-icons-round text-xl">dashboard</span>
+            </a>
+            
+            <button onclick="addPaseRapido()" class="flex-1 bg-white dark:bg-emerald-500 text-teal-700 dark:text-zinc-950 h-12 rounded-xl font-black text-sm shadow-md btn-pop flex justify-center items-center gap-2 border-b-4 border-teal-100 dark:border-emerald-700 active:border-b-0 active:translate-y-1 transition-all">
+                <span class="material-icons-round text-lg">confirmation_number</span> PASE
+            </button>
+            
+            <button id="closeShiftBtn" class="flex-1 bg-rose-500 text-white h-12 rounded-xl font-black text-sm shadow-md btn-pop flex justify-center items-center gap-2 border-b-4 border-rose-700 active:border-b-0 active:translate-y-1 transition-all">
+                <span class="material-icons-round text-lg">inventory</span> CORTE
+            </button>
         </div>
         
         <div class="relative w-full">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-teal-200 dark:text-zinc-500 material-icons-round text-lg">search</span>
-            <input type="text" id="searchInput" oninput="filter()" placeholder="Buscar producto..." class="w-full bg-teal-700/50 dark:bg-zinc-800 text-white dark:text-white placeholder-teal-200 dark:placeholder-zinc-600 rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 ring-white/20">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-teal-200 dark:text-zinc-500 material-icons-round text-xl">search</span>
+            <input type="text" id="searchInput" oninput="filter()" placeholder="Buscar producto..." class="w-full h-11 bg-teal-700/50 dark:bg-zinc-800 text-white dark:text-white placeholder-teal-200 dark:placeholder-zinc-600 rounded-xl pl-10 pr-4 text-base outline-none focus:ring-2 ring-white/20 shadow-inner">
         </div>
+
       </header>
 
       <div class="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar bg-amber-50 dark:bg-zinc-950 border-b border-amber-200 dark:border-zinc-800 shrink-0">
-        <button onclick="setCategory('Todo')" class="cat-btn px-4 py-2 rounded-full bg-teal-600 dark:bg-emerald-500 text-white dark:text-zinc-950 font-bold text-xs whitespace-nowrap shadow-md">Todo</button>
-        <button onclick="setCategory('Comida')" class="cat-btn px-4 py-2 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-xs whitespace-nowrap font-bold">Comida</button>
-        <button onclick="setCategory('Antojitos')" class="cat-btn px-4 py-2 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-xs whitespace-nowrap font-bold">Antojitos</button>
-        <button onclick="setCategory('Bebidas')" class="cat-btn px-4 py-2 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-xs whitespace-nowrap font-bold">Bebidas</button>
-        <button onclick="setCategory('Postres')" class="cat-btn px-4 py-2 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-xs whitespace-nowrap font-bold">Postres</button>
-        <button onclick="setCategory('Otros')" class="cat-btn px-4 py-2 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-xs whitespace-nowrap font-bold">Otros</button>
+        <button onclick="setCategory('Todo')" class="cat-btn px-5 py-2.5 rounded-full bg-teal-600 dark:bg-emerald-500 text-white dark:text-zinc-950 font-bold text-sm whitespace-nowrap shadow-md">Todo</button>
+        <button onclick="setCategory('Comida')" class="cat-btn px-5 py-2.5 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-sm whitespace-nowrap font-bold">Comida</button>
+        <button onclick="setCategory('Antojitos')" class="cat-btn px-5 py-2.5 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-sm whitespace-nowrap font-bold">Antojitos</button>
+        <button onclick="setCategory('Bebidas')" class="cat-btn px-5 py-2.5 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-sm whitespace-nowrap font-bold">Bebidas</button>
+        <button onclick="setCategory('Postres')" class="cat-btn px-5 py-2.5 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-sm whitespace-nowrap font-bold">Postres</button>
+        <button onclick="setCategory('Otros')" class="cat-btn px-5 py-2.5 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-sm whitespace-nowrap font-bold">Otros</button>
       </div>
 
       <div id="productsGrid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 content-start pb-20 md:pb-4"></div>
     </main>
 
     <aside id="tabTicket" class="hidden md:flex w-full md:w-[380px] lg:w-[420px] bg-white dark:bg-zinc-900 flex-col h-full shadow-2xl z-20 border-t md:border-t-0 border-amber-200 dark:border-zinc-800 absolute md:relative inset-0 md:inset-auto">
-      <div class="md:hidden p-3 border-b border-amber-100 dark:border-zinc-800 flex items-center gap-3 bg-teal-600 dark:bg-zinc-900">
-          <button onclick="switchTab('menu')" class="p-2 rounded-lg bg-white/20 text-white"><span class="material-icons-round">arrow_back</span></button>
-          <span class="font-bold text-white">Cuenta</span>
+      <div class="md:hidden p-4 border-b border-amber-100 dark:border-zinc-800 flex items-center gap-3 bg-teal-600 dark:bg-zinc-900 text-white shadow-md">
+          <button onclick="switchTab('menu')" class="p-2 rounded-xl bg-white/20 active:scale-95 transition-transform"><span class="material-icons-round">arrow_back</span></button>
+          <span class="font-bold text-lg">Cuenta Actual</span>
       </div>
 
       <div class="flex-1 overflow-y-auto flex flex-col bg-white dark:bg-zinc-900/50">
@@ -91,7 +117,7 @@
         <div id="recentHistory" class="space-y-1"></div>
       </div>
 
-      <div class="bg-white dark:bg-zinc-900 p-4 border-t border-amber-200 dark:border-zinc-800 space-y-3 shadow-inner z-30 relative shrink-0 pb-24 md:pb-4">
+      <div class="bg-white dark:bg-zinc-900 p-4 border-t border-amber-200 dark:border-zinc-800 space-y-3 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-30 relative shrink-0 pb-24 md:pb-4">
         <div class="flex justify-between items-end">
           <div class="text-amber-400 dark:text-zinc-500 text-xs font-bold uppercase mb-1">Total</div>
           <div id="totalDisplay" class="text-5xl font-black text-amber-900 dark:text-white tracking-tighter leading-none">$0.00</div>
@@ -99,7 +125,7 @@
         <div class="space-y-2">
           <div class="relative group">
             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-amber-400 dark:text-zinc-500 text-xl font-bold">$</span>
-            <input id="cashInput" type="number" inputmode="decimal" placeholder="0" class="w-full bg-amber-50 dark:bg-zinc-950 border-2 border-amber-200 dark:border-zinc-700 rounded-2xl pl-10 pr-4 py-3 text-3xl font-bold text-amber-900 dark:text-white outline-none focus:border-teal-500 text-right">
+            <input id="cashInput" type="number" inputmode="decimal" placeholder="0" class="w-full bg-amber-50 dark:bg-zinc-950 border-2 border-amber-200 dark:border-zinc-700 rounded-2xl pl-10 pr-4 py-3 text-3xl font-bold text-amber-900 dark:text-white outline-none focus:border-teal-500 text-right transition-colors">
           </div>
           <div id="smartCashButtons" class="grid grid-cols-4 gap-2 h-10 empty:hidden"></div>
         </div>
@@ -107,19 +133,19 @@
         <div id="changePanel" class="hidden absolute inset-0 bg-teal-700/95 dark:bg-zinc-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-6 animate-fade-in text-white">
              <div class="text-teal-200 font-bold text-xl uppercase mb-2">Entregar Cambio</div>
              <div id="bigChangeDisplay" class="text-7xl font-black text-white mb-8">$0.00</div>
-             <button onclick="resetOrder()" class="bg-yellow-400 text-amber-900 px-8 py-4 rounded-xl font-bold text-lg border-b-4 border-yellow-600 w-full shadow-xl">Siguiente</button>
+             <button onclick="resetOrder()" class="bg-yellow-400 text-amber-900 px-8 py-4 rounded-xl font-bold text-lg border-b-4 border-yellow-600 w-full shadow-xl active:scale-95 transition-transform">Siguiente</button>
         </div>
 
         <div class="grid grid-cols-4 gap-2 pt-1">
           <button id="cancelBtn" class="col-span-1 py-4 rounded-xl bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-400 font-bold hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-500 btn-pop"><span class="material-icons-round">delete</span></button>
-          <button id="payBtn" class="col-span-3 py-4 rounded-xl bg-yellow-400 dark:bg-emerald-500 text-amber-900 dark:text-zinc-950 font-black text-2xl shadow-lg btn-pop disabled:opacity-50 border-b-4 border-yellow-600 dark:border-emerald-700">COBRAR</button>
+          <button id="payBtn" class="col-span-3 py-4 rounded-xl bg-yellow-400 dark:bg-emerald-500 text-amber-900 dark:text-zinc-950 font-black text-2xl shadow-lg btn-pop disabled:opacity-50 border-b-4 border-yellow-600 dark:border-emerald-700 active:border-b-0 active:translate-y-1 transition-all">COBRAR</button>
         </div>
       </div>
     </aside>
 
-    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white dark:bg-zinc-900 border-t border-amber-100 dark:border-zinc-800 flex justify-around p-2 z-50 pb-safe shadow-lg">
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white dark:bg-zinc-900 border-t border-amber-100 dark:border-zinc-800 flex justify-around p-2 z-50 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
         <button onclick="switchTab('menu')" id="btnTabMenu" class="flex-1 flex flex-col items-center justify-center p-2 rounded-xl text-teal-600 bg-teal-50"><span class="material-icons-round">restaurant_menu</span><span class="text-[10px] font-bold mt-1">MENÚ</span></button>
-        <button onclick="switchTab('ticket')" id="btnTabTicket" class="flex-1 flex flex-col items-center justify-center p-2 rounded-xl text-amber-300 relative"><span class="material-icons-round">receipt_long</span><span class="text-[10px] font-bold mt-1">CUENTA</span><div id="cartBadge" class="hidden absolute top-2 right-10 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</div></button>
+        <button onclick="switchTab('ticket')" id="btnTabTicket" class="flex-1 flex flex-col items-center justify-center p-2 rounded-xl text-amber-300 relative"><span class="material-icons-round">receipt_long</span><span class="text-[10px] font-bold mt-1">CUENTA</span><div id="cartBadge" class="hidden absolute top-2 right-10 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border border-white">0</div></button>
     </nav>
   </div>
 
@@ -133,7 +159,7 @@
         </div>
         <div class="grid grid-cols-2 gap-3 mt-8">
             <button onclick="document.getElementById('cutModal').close()" class="py-3 rounded-xl bg-gray-100 dark:bg-zinc-800 font-bold text-gray-500">Volver</button>
-            <button onclick="confirmCloseShift()" class="py-3 rounded-xl bg-rose-500 hover:bg-rose-600 font-bold text-white shadow-lg border-b-4 border-rose-700">Cerrar</button>
+            <button onclick="confirmCloseShift()" class="py-3 rounded-xl bg-rose-500 hover:bg-rose-600 font-bold text-white shadow-lg border-b-4 border-rose-700 active:border-b-0 active:translate-y-1 transition-all">Cerrar</button>
         </div>
     </div>
   </dialog>
@@ -176,8 +202,8 @@
     async function loadShift(){
       currentShift = await api(`/api/shifts/current?register_id=${registerId}`);
       const d=qs("#shiftInfo");
-      if(currentShift){ d.textContent=`CAJA ABIERTA`; d.className="text-[10px] font-bold mt-0.5 text-teal-200 uppercase tracking-wider"; }
-      else { d.textContent="CAJA CERRADA"; d.className="text-[10px] font-bold mt-0.5 text-rose-200 uppercase tracking-wider"; }
+      if(currentShift){ d.textContent=`CAJA ABIERTA`; d.className="text-[10px] font-bold text-teal-200 uppercase tracking-wider"; }
+      else { d.textContent="CAJA CERRADA"; d.className="text-[10px] font-bold text-rose-200 uppercase tracking-wider"; }
     }
 
     window.addToCart=async(pid, delta=1)=>{
@@ -213,16 +239,16 @@
        qs("#totalDisplay").textContent=money(sub);
        const cash=parseFloat(qs("#cashInput").value)||0; const tot=sub/100; const opts=[tot,Math.ceil(tot/50)*50,100,200,500].filter(x=>x>=tot && x>0).sort((a,b)=>a-b).slice(0,4);
        qs("#smartCashButtons").innerHTML=[...new Set(opts)].map(v=>`<button onclick="qs('#cashInput').value=${v};renderTicket()" class="bg-white dark:bg-zinc-800 hover:bg-teal-50 dark:hover:bg-emerald-900/30 text-teal-700 dark:text-emerald-400 font-bold rounded-xl py-2 text-sm border-2 border-teal-100 dark:border-zinc-700 active:scale-95 transition-all shadow-sm">$${v}</button>`).join('');
-       const btn=qs("#payBtn"); if(sub===0){ btn.disabled=true; btn.textContent="COBRAR"; btn.className="col-span-3 py-4 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-400 dark:text-zinc-600 font-black text-2xl cursor-not-allowed"; } else if(cash<tot){ btn.disabled=true; btn.textContent=`Faltan $${(tot-cash).toFixed(2)}`; btn.className="col-span-3 py-4 rounded-xl bg-gray-100 dark:bg-zinc-800 border-2 border-rose-200 dark:border-rose-900 text-rose-400 font-bold text-xl cursor-not-allowed"; } else { btn.disabled=false; btn.innerHTML=`COBRAR <span class="text-lg opacity-80 font-normal ml-1">($${money(sub)})</span>`; btn.className="col-span-3 py-4 rounded-xl brand-btn-primary dark:bg-emerald-500 dark:text-zinc-950 font-black text-2xl shadow-lg btn-pop border-b-4 border-yellow-600 dark:border-emerald-700 active:border-b-0 active:translate-y-1 transition-all"; }
+       const btn=qs("#payBtn"); if(sub===0){ btn.disabled=true; btn.textContent="COBRAR"; btn.className="col-span-3 py-4 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-400 dark:text-zinc-600 font-black text-2xl cursor-not-allowed"; } else if(cash<tot){ btn.disabled=true; btn.textContent=`Faltan $${(tot-cash).toFixed(2)}`; btn.className="col-span-3 py-4 rounded-xl bg-gray-100 dark:bg-zinc-800 border-2 border-rose-200 dark:border-rose-900 text-rose-400 font-bold text-xl cursor-not-allowed"; } else { btn.disabled=false; btn.innerHTML=`COBRAR <span class="text-lg opacity-80 font-normal ml-1">(${money(sub)})</span>`; btn.className="col-span-3 py-4 rounded-xl brand-btn-primary dark:bg-emerald-500 dark:text-zinc-950 font-black text-2xl shadow-lg btn-pop border-b-4 border-yellow-600 dark:border-emerald-700 active:border-b-0 active:translate-y-1 transition-all"; }
     }
     
     window.setCategory = (cat) => {
         currentCategory = cat;
         document.querySelectorAll('.cat-btn').forEach(b => { 
             if(b.textContent === cat) {
-                b.className="cat-btn px-4 py-2 rounded-full bg-teal-600 dark:bg-emerald-500 text-white dark:text-zinc-950 font-bold text-xs whitespace-nowrap shadow-md transform scale-105";
+                b.className="cat-btn px-5 py-2.5 rounded-full bg-teal-600 dark:bg-emerald-500 text-white dark:text-zinc-950 font-bold text-sm whitespace-nowrap shadow-md transform scale-105 transition-transform";
             } else {
-                b.className="cat-btn px-4 py-2 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-xs whitespace-nowrap font-bold hover:bg-amber-50 dark:hover:bg-zinc-700";
+                b.className="cat-btn px-5 py-2.5 rounded-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 text-amber-900 dark:text-zinc-300 text-sm whitespace-nowrap font-bold hover:bg-amber-50 dark:hover:bg-zinc-700 transition-colors";
             }
         });
         filter();

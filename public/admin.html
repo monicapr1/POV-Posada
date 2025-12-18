@@ -3,9 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <title>Admin Sembrador</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' };
+    // 2. CONFIGURAR TAILWIND
+    tailwind.config = { 
+        darkMode: 'class',
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Poppins', 'sans-serif'], // Fuente global
+                }
+            }
+        }
+    };
+
     function toggleTheme() {
         document.documentElement.classList.toggle('dark');
         const icon = document.getElementById('themeIcon');
@@ -15,7 +31,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <style> 
-    body { background-color: #fffbeb; color: #451a03; }
+    /* 3. APLICAR FUENTE GLOBALMENTE */
+    body { background-color: #fffbeb; color: #451a03; font-family: 'Poppins', sans-serif; }
     .dark body { background-color: #09090b; color: #e4e4e7; }
     .chart-container { position: relative; height: 250px; width: 100%; } 
     tr:nth-child(even) { background-color: #fff7ed; }
@@ -30,15 +47,17 @@
 
   <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-amber-200 dark:border-zinc-800 pb-6 gap-4 pl-12">
     <div class="flex items-center gap-4">
-        <div class="h-16 w-16 rounded-full border-4 border-white dark:border-zinc-800 shadow-md bg-teal-600 flex items-center justify-center">
-            <span class="material-icons-round text-white text-3xl">local_florist</span>
+        <img src="logo.jpg" alt="Logo Sembrador" class="h-20 w-20 rounded-full border-4 border-white dark:border-zinc-800 shadow-md object-cover bg-white">
+        <div>
+            <h1 class="text-3xl font-black text-teal-700 dark:text-emerald-400 tracking-tight">CONTROL SEMBRADOR</h1>
+            <p class="text-amber-700 dark:text-zinc-500 text-sm font-medium">Posada 2025 • Reporte en Tiempo Real</p>
         </div>
-        <div><h1 class="text-3xl font-black text-teal-700 dark:text-emerald-400 tracking-tight">CONTROL SEMBRADOR</h1><p class="text-amber-700 dark:text-zinc-500 text-sm">Posada 2025 • Reporte en Tiempo Real</p></div>
     </div>
+    
     <div class="flex items-center gap-4">
         <div class="flex flex-col items-end">
             <label class="text-[10px] text-amber-500 dark:text-zinc-500 uppercase font-bold mb-1">Filtrar por Caja</label>
-            <select id="boxFilter" onchange="applyFilter()" class="bg-white dark:bg-zinc-900 border border-amber-300 dark:border-zinc-700 text-amber-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-teal-500 shadow-sm"><option value="all">Todas las Cajas</option></select>
+            <select id="boxFilter" onchange="applyFilter()" class="bg-white dark:bg-zinc-900 border border-amber-300 dark:border-zinc-700 text-amber-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-teal-500 shadow-sm font-medium"><option value="all">Todas las Cajas</option></select>
         </div>
         <div class="text-right border-l border-amber-200 dark:border-zinc-800 pl-6">
             <div class="text-[10px] text-amber-500 dark:text-zinc-500 uppercase font-bold tracking-widest">Total Evento</div>
@@ -64,7 +83,7 @@
       <div class="overflow-hidden rounded-3xl border border-amber-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg">
           <table class="w-full text-left">
               <thead class="bg-amber-50 dark:bg-zinc-950 border-b border-amber-100 dark:border-zinc-800 text-xs font-bold text-amber-400 dark:text-zinc-500 uppercase"><tr><th class="p-4">Caja</th><th class="p-4 text-right text-indigo-400">Fondo Inicial</th><th class="p-4 text-right text-teal-500 dark:text-emerald-500">+ Ventas</th><th class="p-4 text-right text-amber-900 dark:text-white font-black">= Total Cajón</th><th class="p-4 text-center">Tickets</th></tr></thead>
-              <tbody id="liveTable" class="text-sm divide-y divide-amber-50 dark:divide-zinc-800"></tbody>
+              <tbody id="liveTable" class="text-sm divide-y divide-amber-50 dark:divide-zinc-800 font-medium"></tbody>
           </table>
       </div>
   </div>
@@ -77,7 +96,7 @@
       <div class="overflow-hidden rounded-3xl border border-amber-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg max-h-[400px] overflow-y-auto">
           <table class="w-full text-left" id="productsTableElement">
               <thead class="bg-amber-50 dark:bg-zinc-950 border-b border-amber-100 dark:border-zinc-800 text-xs font-bold text-amber-400 dark:text-zinc-500 uppercase sticky top-0 z-10"><tr><th class="p-4 bg-amber-50 dark:bg-zinc-950">Producto</th><th class="p-4 bg-amber-50 dark:bg-zinc-950">Categoría</th><th class="p-4 text-right bg-amber-50 dark:bg-zinc-950">Cantidad</th><th class="p-4 text-right bg-amber-50 dark:bg-zinc-950 text-teal-600 dark:text-emerald-400">Total $</th></tr></thead>
-              <tbody id="productsTable" class="text-sm divide-y divide-amber-50 dark:divide-zinc-800"></tbody>
+              <tbody id="productsTable" class="text-sm divide-y divide-amber-50 dark:divide-zinc-800 font-medium"></tbody>
           </table>
       </div>
   </div>
@@ -87,12 +106,16 @@
       <div class="overflow-hidden rounded-3xl border border-amber-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg">
           <table class="w-full text-left">
               <thead class="bg-amber-50 dark:bg-zinc-950 text-xs font-bold text-amber-400 dark:text-zinc-500 uppercase"><tr><th class="p-4">Hora</th><th class="p-4">Caja</th><th class="p-4 text-right">Fondo</th><th class="p-4 text-right text-teal-500 dark:text-emerald-500">+ Ventas</th><th class="p-4 text-right text-amber-900 dark:text-white font-bold">= Retirado</th></tr></thead>
-              <tbody id="historyTable" class="text-sm divide-y divide-amber-50 dark:divide-zinc-800"></tbody>
+              <tbody id="historyTable" class="text-sm divide-y divide-amber-50 dark:divide-zinc-800 font-medium"></tbody>
           </table>
       </div>
   </div>
 
   <script>
+    // 4. CONFIGURAR CHART.JS CON POPPINS
+    Chart.defaults.font.family = "'Poppins', sans-serif";
+    Chart.defaults.color = '#71717a'; 
+    
     const money=(c)=>(c/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
     let scI=null, ccI=null, globalData=null, globalHistory=null, filterVal='all';
 
@@ -102,7 +125,8 @@
             const resHist = await fetch('/api/admin/history'); globalHistory = await resHist.json();
             
             const sel = document.getElementById('boxFilter');
-            if(sel.options.length === 1 && globalData.registers) { 
+            if(globalData.registers) {
+                sel.innerHTML = '<option value="all">Todas las Cajas</option>';
                 globalData.registers.forEach(r => { 
                     const opt = document.createElement('option'); 
                     opt.value = r.name; 
@@ -120,14 +144,13 @@
         if(!globalData) return;
         document.getElementById('grandTotal').textContent = money(globalData.global_total);
 
-        // Filter Logic
         const activeRegs = globalData.registers.filter(r => r.shift_status === 'OPEN');
         const filteredActive = filterVal === 'all' ? activeRegs : activeRegs.filter(r => r.name === filterVal);
 
         const liveRows = filteredActive.map(r => {
             const open = Number(r.opening_cash_cents)||0; 
             const sales = Number(r.total_sales)||0; 
-            return `<tr class="hover:bg-amber-50/50 dark:hover:bg-zinc-800/50"><td class="p-4 font-bold text-amber-900 dark:text-zinc-200">${r.name}</td><td class="p-4 text-right font-mono text-indigo-400">${money(open)}</td><td class="p-4 text-right font-mono text-teal-600 dark:text-emerald-400 font-bold">${money(sales)}</td><td class="p-4 text-right font-mono text-amber-900 dark:text-white text-lg font-black bg-amber-50/50 dark:bg-zinc-800/50">${money(open+sales)}</td><td class="p-4 text-center text-amber-400 dark:text-zinc-600">${r.count_sales}</td></tr>`;
+            return `<tr class="hover:bg-amber-50/50 dark:hover:bg-zinc-800/50 transition-colors"><td class="p-4 font-bold text-amber-900 dark:text-zinc-200">${r.name}</td><td class="p-4 text-right font-mono text-indigo-400">${money(open)}</td><td class="p-4 text-right font-mono text-teal-600 dark:text-emerald-400 font-bold">${money(sales)}</td><td class="p-4 text-right font-mono text-amber-900 dark:text-white text-lg font-black bg-amber-50/50 dark:bg-zinc-800/50 rounded-lg">${money(open+sales)}</td><td class="p-4 text-center text-amber-400 dark:text-zinc-600">${r.count_sales}</td></tr>`;
         }).join('');
         document.getElementById('liveTable').innerHTML = liveRows || '<tr><td colspan="5" class="p-6 text-center text-gray-400 italic">No hay cajas activas con ese filtro</td></tr>';
 
@@ -141,7 +164,7 @@
         const histRows = filteredHist.map(h => {
             const open = Number(h.opening_cash_cents)||0; 
             const sales = Number(h.sales_cents)||0;
-            return `<tr class="hover:bg-amber-50/50 dark:hover:bg-zinc-800/50"><td class="p-4 text-gray-400">${new Date(h.closed_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td><td class="p-4 font-medium text-amber-800 dark:text-zinc-300">${h.register_name}</td><td class="p-4 text-right text-gray-400 font-mono">${money(open)}</td><td class="p-4 text-right text-teal-600 dark:text-emerald-400 font-mono">${money(sales)}</td><td class="p-4 text-right text-amber-900 dark:text-white font-mono font-bold bg-amber-50/50 dark:bg-zinc-800/50">${money(open+sales)}</td></tr>`;
+            return `<tr class="hover:bg-amber-50/50 dark:hover:bg-zinc-800/50"><td class="p-4 text-gray-400">${new Date(h.closed_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td><td class="p-4 font-medium text-amber-800 dark:text-zinc-300">${h.register_name}</td><td class="p-4 text-right text-gray-400 font-mono">${money(open)}</td><td class="p-4 text-right text-teal-600 dark:text-emerald-400 font-mono">${money(sales)}</td><td class="p-4 text-right text-amber-900 dark:text-white font-mono font-bold bg-amber-50/50 dark:bg-zinc-800/50 rounded-lg">${money(open+sales)}</td></tr>`;
         }).join('');
         document.getElementById('historyTable').innerHTML = histRows || '<tr><td colspan="5" class="p-4 text-center text-gray-400 italic">Sin cortes aún</td></tr>';
     }
@@ -151,11 +174,57 @@
         const color = isDark ? '#34d399' : '#0d9488';
         const ctx1=document.getElementById('salesChart').getContext('2d'), ctx2=document.getElementById('catChart').getContext('2d');
         if(scI)scI.destroy(); if(ccI)ccI.destroy();
-        scI=new Chart(ctx1,{type:'bar',data:{labels:h.map(x=>`${x.hour_block}:00`),datasets:[{label:'$',data:h.map(x=>x.total/100),backgroundColor:color,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{display:false}},x:{grid:{display:false}}}}});
-        ccI=new Chart(ctx2,{type:'doughnut',data:{labels:c.map(x=>x.category),datasets:[{data:c.map(x=>x.total/100),backgroundColor:['#0d9488','#f59e0b','#f43f5e','#8b5cf6','#0ea5e9'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}}});
+        
+        scI=new Chart(ctx1,{
+            type:'bar',
+            data:{
+                labels:h.map(x=>`${x.hour_block}:00`),
+                datasets:[{
+                    label:'$',
+                    data:h.map(x=>x.total/100),
+                    backgroundColor:color,
+                    borderRadius:8,
+                    hoverBackgroundColor: isDark ? '#10b981' : '#0f766e'
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                plugins:{legend:{display:false}},
+                scales:{
+                    y:{grid:{display:false, drawBorder: false}, ticks:{font:{family:"'Poppins', sans-serif"}}},
+                    x:{grid:{display:false, drawBorder: false}, ticks:{font:{family:"'Poppins', sans-serif"}}}
+                }
+            }
+        });
+        
+        ccI=new Chart(ctx2,{
+            type:'doughnut',
+            data:{
+                labels:c.map(x=>x.category),
+                datasets:[{
+                    data:c.map(x=>x.total/100),
+                    backgroundColor:['#0d9488','#f59e0b','#f43f5e','#8b5cf6','#0ea5e9'],
+                    borderWidth:0
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                plugins:{
+                    legend:{
+                        position:'right',
+                        labels: { font: { family: "'Poppins', sans-serif" } }
+                    }
+                }
+            }
+        });
     }
+    
     function exportTableToCSV(f) { const r=document.querySelectorAll("#productsTableElement tr"),c=[]; for(let i=0;i<r.length;i++){ const o=[],l=r[i].querySelectorAll("td,th"); for(let j=0;j<l.length;j++)o.push('"'+l[j].innerText+'"'); c.push(o.join(",")); } const a=document.createElement("a"); a.download=f; a.href=window.URL.createObjectURL(new Blob([c.join("\n")],{type:"text/csv"})); document.body.appendChild(a); a.click(); }
-    setInterval(loadDashboard, 5000); loadDashboard();
+    
+    setInterval(loadDashboard, 5000); 
+    loadDashboard();
   </script>
 </body>
 </html>
