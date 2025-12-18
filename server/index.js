@@ -14,7 +14,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json());
 app.use(cors());
-// Asegura que busque la carpeta public hermana
 app.use(express.static(path.join(__dirname, "../public")));
 
 const pool = new Pool({
@@ -24,6 +23,7 @@ const pool = new Pool({
 
 const toCents = (val) => Math.round((parseFloat(val) || 0) * 100);
 
+// --- BASE DE DATOS E INICIALIZACIÓN ---
 async function initDB() {
   const client = await pool.connect();
   try {
@@ -37,8 +37,7 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS order_items (id SERIAL PRIMARY KEY, order_id TEXT, product_id TEXT, qty INT, unit_price_cents INT, line_total_cents INT);
     `);
 
-    // --- CAJAS ACTUALIZADAS (Caja 1, Caja 2...) ---
-    // Se usa DO UPDATE para forzar el cambio de nombre si ya existían
+    // CAJAS (Forzamos actualización de nombres)
     await client.query(`
       INSERT INTO registers (id, name) VALUES 
       ('CAJA-1', 'Caja 1'), ('CAJA-2', 'Caja 2'),
@@ -46,7 +45,7 @@ async function initDB() {
       ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
     `);
 
-    // PRODUCTOS (Precios 2025)
+    // PRODUCTOS 2025
     const products = [
       ['tamal', 'Tamales', 'Comida', 2500, 1],
       ['corunda', 'Corundas', 'Comida', 1700, 2],
@@ -79,36 +78,17 @@ async function initDB() {
     for (const p of products) {
       await client.query(`INSERT INTO products (id, name, category, price_cents, sort_order) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id) DO UPDATE SET category=EXCLUDED.category, price_cents=EXCLUDED.price_cents, name=EXCLUDED.name`, p);
     }
-
-    // --- SIN DATOS DE PRUEBA ---
-    // La línea se ha comentado para que NO genere ventas falsas.
-    const checkOrders = await client.query("SELECT COUNT(*) FROM orders");
-    if(parseInt(checkOrders.rows[0].count) === 0) {
-        // await seedDummyData(client); // <--- DESACTIVADO
-        console.log("ℹ️ Sistema listo. Esperando ventas reales.");
-    }
     
-    console.log("✅ DB Lista");
-  } catch (e) { console.error(e); } finally { client.release(); }
-}
+    // SIN DATOS DE PRUEBA (Comentado para seguridad)
+    // await seedDummyData(client);
 
-// Función disponible pero no se usa automáticamente
-async function seedDummyData(client) {
-    const regId = 'CAJA-1'; const shiftId = nanoid();
-    await client.query("INSERT INTO shifts (id, register_id, status, opened_at, closed_at, opening_cash_cents) VALUES ($1, $2, 'CLOSED', NOW() - INTERVAL '5 HOURS', NOW(), 50000)", [shiftId, regId]);
-    const items = ['tamal', 'atole', 'vaso_elote', 'pase'];
-    for(let i=0; i<10; i++) {
-        const oid = nanoid(); const prodId = items[Math.floor(Math.random()*items.length)];
-        const pRes = await client.query("SELECT price_cents FROM products WHERE id=$1", [prodId]);
-        const price = pRes.rows[0].price_cents;
-        await client.query("INSERT INTO orders (id, register_id, shift_id, status, total_cents, cash_received_cents, created_at) VALUES ($1, $2, $3, 'PAID', $4, $4, NOW() - INTERVAL '2 HOURS')", [oid, regId, shiftId, price]);
-        await client.query(`INSERT INTO order_items (order_id, product_id, qty, unit_price_cents, line_total_cents) VALUES ('${oid}', '${prodId}', 1, ${price}, ${price})`);
-    }
+    console.log("✅ DB Lista y Limpia");
+  } catch (e) { console.error(e); } finally { client.release(); }
 }
 
 initDB();
 
-// --- ENDPOINTS ---
+// --- ENDPOINTS POS ---
 app.get('/api/registers', async (req, res) => { const r = await pool.query('SELECT * FROM registers ORDER BY id'); res.json(r.rows); });
 app.get('/api/products', async (req, res) => { const r = await pool.query('SELECT * FROM products ORDER BY sort_order'); res.json(r.rows); });
 app.get('/api/shifts/current', async (req, res) => { const r = await pool.query("SELECT * FROM shifts WHERE register_id = $1 AND status = 'OPEN' ORDER BY opened_at DESC LIMIT 1", [req.query.register_id]); res.json(r.rows[0] || null); });
@@ -124,6 +104,8 @@ app.get('/api/shifts/:id/summary', async (req, res) => {
   res.json({ shift: s.rows[0], paid: p.rows[0] });
 });
 app.post('/api/shifts/:id/close', async (req, res) => { await pool.query("UPDATE shifts SET status='CLOSED', closed_at=NOW() WHERE id=$1", [req.params.id]); res.json({ ok: true }); });
+
+// ORDENES
 app.post('/api/orders', async (req, res) => {
   const s = await pool.query("SELECT id FROM shifts WHERE register_id=$1 AND status='OPEN' LIMIT 1", [req.body.register_id]);
   if(s.rows.length===0) return res.status(400).json({ error: "Caja cerrada" });
@@ -154,19 +136,44 @@ app.post('/api/orders/:id/pay', async (req, res) => {
 app.post('/api/orders/:id/cancel', async (req, res) => { await pool.query("UPDATE orders SET status='CANCELED' WHERE id=$1", [req.params.id]); res.json({ ok: true }); });
 app.get('/api/orders/recent', async (req, res) => { const r = await pool.query("SELECT folio, total_cents, created_at FROM orders WHERE register_id=$1 AND status='PAID' ORDER BY created_at DESC LIMIT 3", [req.query.register_id]); res.json(r.rows); });
 
-// --- ADMIN STATS (Horario CDMX) ---
+// --- ADMIN STATS MEJORADO (CON FILTROS) ---
 app.get('/api/admin/stats', async (req, res) => {
   try {
-    const t = await pool.query("SELECT SUM(total_cents) as total FROM orders WHERE status='PAID'");
+    const { register_id } = req.query;
+    
+    // Construir Filtro SQL
+    const filterSQL = (register_id && register_id !== 'all') ? `AND register_id = '${register_id}'` : '';
+    // Para queries que unen tablas (JOIN), especificar la tabla 'o' (orders)
+    const joinFilterSQL = (register_id && register_id !== 'all') ? `AND o.register_id = '${register_id}'` : '';
+
+    // 1. Total Global (Afectado por filtro)
+    const t = await pool.query(`SELECT SUM(total_cents) as total FROM orders WHERE status='PAID' ${filterSQL}`);
+    
+    // 2. Lista de Cajas (Siempre traemos todas para el dropdown, pero marcamos la activa)
     const r = await pool.query(`SELECT r.id, r.name, s.status as shift_status, s.opened_at, s.opening_cash_cents, (SELECT COUNT(*) FROM orders WHERE shift_id = s.id AND status='PAID') as count_sales, (SELECT COALESCE(SUM(total_cents),0) FROM orders WHERE shift_id = s.id AND status='PAID') as total_sales FROM registers r LEFT JOIN shifts s ON r.id = s.register_id AND s.status = 'OPEN' ORDER BY r.id`);
-    const p = await pool.query(`SELECT p.name, p.category, SUM(oi.qty) as total_qty, SUM(oi.line_total_cents) as total_revenue FROM order_items oi JOIN orders o ON oi.order_id = o.id JOIN products p ON oi.product_id = p.id WHERE o.status = 'PAID' GROUP BY p.name, p.category ORDER BY total_revenue DESC`);
-    const h = await pool.query(`SELECT EXTRACT(HOUR FROM created_at AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City') as hour_block, SUM(total_cents) as total FROM orders WHERE status='PAID' GROUP BY hour_block ORDER BY hour_block`);
-    const c = await pool.query(`SELECT p.category, SUM(oi.line_total_cents) as total FROM order_items oi JOIN products p ON oi.product_id = p.id JOIN orders o ON oi.order_id = o.id WHERE o.status = 'PAID' GROUP BY p.category`);
+
+    // 3. Reporte de Productos (Afectado por filtro)
+    const p = await pool.query(`SELECT p.name, p.category, SUM(oi.qty) as total_qty, SUM(oi.line_total_cents) as total_revenue FROM order_items oi JOIN orders o ON oi.order_id = o.id JOIN products p ON oi.product_id = p.id WHERE o.status = 'PAID' ${joinFilterSQL} GROUP BY p.name, p.category ORDER BY total_revenue DESC`);
+    
+    // 4. Ventas por Hora (Afectado por filtro)
+    const h = await pool.query(`SELECT EXTRACT(HOUR FROM created_at AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City') as hour_block, SUM(total_cents) as total FROM orders WHERE status='PAID' ${filterSQL} GROUP BY hour_block ORDER BY hour_block`);
+    
+    // 5. Ventas por Categoría (Afectado por filtro)
+    const c = await pool.query(`SELECT p.category, SUM(oi.line_total_cents) as total FROM order_items oi JOIN products p ON oi.product_id = p.id JOIN orders o ON oi.order_id = o.id WHERE o.status = 'PAID' ${joinFilterSQL} GROUP BY p.category`);
+    
     res.json({ global_total: t.rows[0].total || 0, registers: r.rows, products_report: p.rows, sales_by_hour: h.rows, sales_by_cat: c.rows });
   } catch(e) { console.error(e); res.status(500).json({error: "Error admin"}); }
 });
+
 app.get('/api/admin/history', async (req, res) => {
-  try { const r = await pool.query(`SELECT s.id, s.status, r.name as register_name, s.opened_at, s.closed_at, s.opening_cash_cents, (SELECT COALESCE(SUM(total_cents),0) FROM orders WHERE shift_id = s.id AND status='PAID') as sales_cents FROM shifts s JOIN registers r ON s.register_id = r.id ORDER BY s.opened_at DESC`); res.json(r.rows); } catch(e) { res.status(500).json({error: "Error"}); }
+  try { 
+    // Historial también se podría filtrar, pero por ahora traemos todo y filtramos en front para simplicidad, o agregamos SQL
+    const { register_id } = req.query;
+    const filterSQL = (register_id && register_id !== 'all') ? `AND s.register_id = '${register_id}'` : '';
+    
+    const r = await pool.query(`SELECT s.id, s.status, r.name as register_name, s.opened_at, s.closed_at, s.opening_cash_cents, (SELECT COALESCE(SUM(total_cents),0) FROM orders WHERE shift_id = s.id AND status='PAID') as sales_cents FROM shifts s JOIN registers r ON s.register_id = r.id WHERE 1=1 ${filterSQL} ORDER BY s.opened_at DESC`); 
+    res.json(r.rows); 
+  } catch(e) { res.status(500).json({error: "Error"}); }
 });
 
 const PORT = process.env.PORT || 3000;
